@@ -4,16 +4,18 @@ class SimpleChat extends StatefulWidget {
   final List<ChatMessage> messages;
   final Function(ChatMessage) onSend;
   final ChatUser currentUser;
-  final String date;
+  final String dateFormat;
+
   final ScrollController scrollController;
-  const SimpleChat(
-      {Key key,
-      @required this.messages,
-      @required this.onSend,
-      @required this.currentUser,
-      @required this.date,
-      @required this.scrollController})
-      : super(key: key);
+
+  const SimpleChat({
+    Key key,
+    @required this.messages,
+    @required this.onSend,
+    @required this.currentUser,
+    @required this.scrollController,
+    this.dateFormat
+  }) : super(key: key);
 
   @override
   _SimpleChatState createState() => _SimpleChatState();
@@ -48,9 +50,8 @@ class _SimpleChatState extends State<SimpleChat> {
                         return MessageTile(
                           message: widget.messages[index],
                           currentUser: widget.currentUser,
-                          date: widget.date,
-                          sendByMe: widget.currentUser.uid ==
-                              widget.messages[index].user.uid,
+                          sendByMe: widget.currentUser.uid == widget.messages[index].user.uid,
+                          dateFormat: widget.dateFormat,
                         );
                       }),
                 )
@@ -71,8 +72,7 @@ class _SimpleChatState extends State<SimpleChat> {
                         Timer(
                             Duration(milliseconds: 300),
                             () => widget.scrollController.animateTo(
-                                  widget.scrollController.position
-                                      .maxScrollExtent,
+                                  widget.scrollController.position.maxScrollExtent,
                                   curve: Curves.easeOut,
                                   duration: const Duration(milliseconds: 300),
                                 ));
@@ -81,8 +81,7 @@ class _SimpleChatState extends State<SimpleChat> {
                       decoration: InputDecoration(
                         fillColor: Colors.white,
                         filled: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(32)),
                           borderSide: BorderSide(color: Colors.white),
@@ -101,8 +100,7 @@ class _SimpleChatState extends State<SimpleChat> {
               ),
               GestureDetector(
                 onTap: () {
-                  widget.onSend(ChatMessage(
-                      text: messageEditingController.text, user: ChatUser()));
+                  widget.onSend(ChatMessage(text: messageEditingController.text, user: ChatUser()));
                   messageEditingController.clear();
                 },
                 child: Padding(
@@ -127,29 +125,24 @@ class MessageTile extends StatelessWidget {
   final ChatMessage message;
   final ChatUser currentUser;
   final bool sendByMe;
-  final String date;
-  MessageTile({@required this.message, this.currentUser, this.sendByMe,  this.date});
+  final String dateFormat;
+
+  MessageTile({@required this.message, this.currentUser, this.sendByMe, this.dateFormat});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(
-          top: 8, bottom: 8, left: sendByMe ? 0 : 18, right: sendByMe ? 18 : 0),
+      padding: EdgeInsets.only(top: 8, bottom: 8, left: sendByMe ? 0 : 18, right: sendByMe ? 18 : 0),
       alignment: sendByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin:
-            sendByMe ? EdgeInsets.only(left: 22) : EdgeInsets.only(right: 22),
+        margin: sendByMe ? EdgeInsets.only(left: 22) : EdgeInsets.only(right: 22),
         padding: EdgeInsets.only(top: 13, bottom: 13, left: 17, right: 17),
         decoration: BoxDecoration(
             borderRadius: sendByMe
                 ? BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                    bottomLeft: Radius.circular(12))
+                    topLeft: Radius.circular(12), topRight: Radius.circular(12), bottomLeft: Radius.circular(12))
                 : BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    topRight: Radius.circular(8),
-                    bottomRight: Radius.circular(8)),
+                    topLeft: Radius.circular(8), topRight: Radius.circular(8), bottomRight: Radius.circular(8)),
             color: sendByMe ? Color(0xff677fff) : Color(0xfff3f3f3)),
         child: Column(
           children: [
@@ -162,7 +155,7 @@ class MessageTile extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(
-                      text: date,
+                      text: DateFormat(dateFormat ?? 'dd-MM-yyyy HH:mm').format(message.createdAt).toString(),
                       style: TextStyle(
                         color: sendByMe ? Colors.white60 : Color(0xff8f8585),
                       )),
